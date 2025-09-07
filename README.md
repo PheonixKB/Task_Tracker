@@ -1,131 +1,203 @@
 # Task Tracker CLI
 
-A command-line tool to manage tasks with features to add, list, update, mark, and delete tasks. Each task is stored in a JSON file with timestamps for creation and updates.
+A Python command-line tool to **add, list, modify, delete, and archive tasks**.  
+Tasks are stored in JSON files (`tasks.json` for active tasks, `archive.json` for archived tasks).
+
+---
 
 ## Features
 
-* Add new tasks with a description
-* List all tasks or filter by status (`todo`, `in-progress`, `done`)
-* Update the description of an existing task
-* Mark tasks with a new status
-* Delete tasks by ID
-* Automatically maintains unique IDs
-* Tracks timestamps for when a task was created and last updated
+- Add tasks with a description.
+- List tasks with optional filtering, sorting, and ordering.
+- Modify tasks (status or description).
+- Delete tasks by ID.
+- Archive tasks using complex criteria (supporting `AND` / `OR` and multiple values).
 
-## Requirements
+---
 
-* Python 3.7 or higher
-* No external dependencies (uses only Python standard library)
+## Setup
 
-## Installation
+1. Make sure Python 3 is installed.
+2. Clone or download this repository.
+3. Run commands using:
 
-1. Clone this repository or copy the source code into your local machine.
-2. Ensure Python is installed and accessible in your system's PATH.
-3. Save the script as `task-cli.py`.
+```bash
+python task_tracker.py <command> [options]
+````
 
-## Usage
+---
 
-The script uses the `argparse` module to parse commands.
+## Commands
 
 ### 1. Add a Task
 
+Adds a new task to `tasks.json`.
+
 ```bash
-py task-cli.py add "Buy groceries"
+python task_tracker.py add "Finish writing report"
 ```
 
 Output:
 
 ```
-Task added successfully (ID:1)
+Added Task (ID:1)
 ```
+
+---
 
 ### 2. List Tasks
 
-List all tasks:
+List tasks from `tasks.json` or `archive.json` with optional filters.
 
 ```bash
-py task-cli.py list
+python task_tracker.py list
 ```
 
-List tasks by status:
+List all tasks.
 
 ```bash
-py task-cli.py list todo
-py task-cli.py list in-progress
-py task-cli.py list done
+python task_tracker.py list todo
 ```
 
-### 3. Mark Task Status
+List only tasks with status `todo`.
 
 ```bash
-py task-cli.py mark done 1
+python task_tracker.py list --file archive
+```
+
+List tasks from the archive.
+
+```bash
+python task_tracker.py list --sort created-at --order desc
+```
+
+Sort by creation date in descending order.
+
+---
+
+### 3. Modify a Task
+
+Modify task `status` or `description`.
+
+```bash
+python task_tracker.py modify 1 status done
+```
+
+Change task ID 1’s status to `done`.
+
+```bash
+python task_tracker.py modify 2 description "Fix bug in login page"
+```
+
+Change task ID 2’s description.
+
+---
+
+### 4. Delete a Task
+
+Delete a task by its ID.
+
+```bash
+python task_tracker.py delete 1
 ```
 
 Output:
 
 ```
-ID:1 Status Updated.
+Deleted ID:1.
 ```
 
-### 4. Update Task Description
+---
+
+### 5. Archive Tasks
+
+Archive tasks based on criteria using **AND / OR logic**.
+
+#### Examples:
+
+* Archive tasks with status `todo` or `in-progress`:
 
 ```bash
-py task-cli.py update 1 "Buy groceries and cook dinner"
+python task_tracker.py archive "status=todo,in-progress"
 ```
 
-Output:
-
-```
-ID:1 Description Updated.
-```
-
-### 5. Delete Task
+* Archive tasks with ID 1 or 2 **AND** status `done`:
 
 ```bash
-py task-cli.py delete 1
+python task_tracker.py archive "id=1,2 and status=done"
 ```
 
-Output:
-
-```
-ID:1 Deleted.
-```
-
-## Data Storage
-
-Tasks are stored in a JSON file located at:
-
-```
-C:/VS_Code/Python/Repository/Task_Tracker/tasks.json
-```
-
-Each task entry contains:
-
-```json
-{
-  "id": 1,
-  "description": "Buy groceries",
-  "status": "todo",
-  "created-at": "2025-09-05 23:55:20",
-  "updated-at": "2025-09-05 23:55:20"
-}
-```
-
-## Example Output
-
-Command:
+* Archive tasks with description containing "Fix bug":
 
 ```bash
-py task-cli.py list
+python task_tracker.py archive "description=Fix bug"
 ```
 
-Output:
+* Complex example using `OR`:
 
+```bash
+python task_tracker.py archive "status=todo or status=in-progress or id=5"
 ```
-ID    | Description                    | Status       | Created-At                | Updated-At
----------------------------------------------------------------------------------------------------------
-1     | Buy groceries                  | todo         | 2025-09-05 23:55:20       | 2025-09-05 23:55:20
-2     | Cook dinner                    | in-progress  | 2025-09-05 23:58:02       | 2025-09-05 23:59:12
+
+---
+
+## Notes
+
+* Task IDs are automatically generated and unique.
+* JSON files are created automatically if missing.
+* Archived tasks are moved to `archive.json` and removed from `tasks.json`.
+* Fields supported in criteria: `id`, `status`, `description`.
+* For multiple values in criteria, separate by commas.
+* Use `and` / `or` for complex criteria.
+* Tasks missing a field in the criteria are safely ignored during archive.
+
+---
+
+## File Structure
+
+* `task_tracker.py` → Main Python CLI script.
+* `tasks.json` → Active tasks.
+* `archive.json` → Archived tasks.
+
+---
+
+## Example Workflow
+
+1. Add tasks:
+
+```bash
+python task_tracker.py add "Finish project report"
+python task_tracker.py add "Fix login bug"
+```
+
+2. List tasks:
+
+```bash
+python task_tracker.py list
+```
+
+3. Modify a task:
+
+```bash
+python task_tracker.py modify 2 status in-progress
+```
+
+4. Archive completed tasks:
+
+```bash
+python task_tracker.py archive "status=done"
+```
+
+5. Delete a task:
+
+```bash
+python task_tracker.py delete 1
+```
+
+6. View archived tasks:
+
+```bash
+python task_tracker.py list --file archive
 ```
 
 ---
